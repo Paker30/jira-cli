@@ -1,0 +1,38 @@
+{
+  "name": "jira-cli",
+  "version": "1.0.0",
+  "description": "Jira cli tool with some features I like to lunch from a terminal",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "commit": "cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paker30/jira-cli.git"
+  },
+  "keywords": [
+    "jira",
+    "command-line",
+    "cli-tool"
+  ],
+  "author": "Fran",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Paker30/jira-cli/issues"
+  },
+  "homepage": "https://github.com/Paker30/jira-cli#readme",
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.19.0"
+  },
+  "dependencies": {
+    "conf": "^10.1.2",
+    "docopt": "^0.6.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
