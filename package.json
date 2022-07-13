@@ -4,8 +4,12 @@
   "description": "Jira cli tool with some features I like to lunch from a terminal",
   "main": "src/index.js",
   "type": "module",
+  "bin": {
+    "jira-cli": "src/index.js"
+  },
   "scripts": {
-    "commit": "cz"
+    "commit": "cz",
+    "start": "src/index.js"
   },
   "repository": {
     "type": "git",
