@@ -16,8 +16,8 @@ Usage:
   jira-cli config set credentials <user> <password>
   jira-cli config set url <address>
   jira-cli config print
-  jira-cli issue list
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
+  jira-cli issue set assignee <issue> <developer>
   jira-cli -h | --help
   jira-cli -v | --version
 
@@ -55,24 +55,6 @@ const main = (options) => {
       return 1;
     }
   }
-  if (options.list) {
-    const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
-
-    return axios({
-      method: 'get',
-      url: `${config.get('url')}/rest/api/2/search?project=IPLUI`,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Basic ${toBase64(credentials)}`
-      }
-    })
-      .then(({ data }) => {
-        console.log(data)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
 
   if (options.issue) {
     if (options.set) {
@@ -106,8 +88,28 @@ const main = (options) => {
             console.log(error);
           });
       }
+      if (options.assignee) {
+        const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
+        return axios({
+          method: 'put',
+          url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Basic ${toBase64(credentials)}`
+          },
+          data: {
+            update: {
+              assignee: [{
+                set: { name: `${options['<developer>']}` }
+              }]
+            }
+          }
+        })
+          .then(({ data }) => console.log(data))
+          .catch(console.error)
+      }
     }
   }
-};
+}
 
 main(docopt(doc, { version }));
