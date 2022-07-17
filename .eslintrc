@@ -6,7 +6,8 @@
   },
   "env": {
     "browser": true,
-    "node": true
+    "node": true,
+    "ec": "ec6"
   },
   "globals": {
     "globalThis": false // means it is not writeable
