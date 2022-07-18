@@ -9,7 +9,6 @@
   },
   "scripts": {
     "commit": "cz",
-    "semantic-release": "semantic-release",
     "start": "src/index.js"
   },
   "repository": {
@@ -29,8 +28,7 @@
   "homepage": "https://github.com/Paker30/jira-cli#readme",
   "devDependencies": {
     "cz-conventional-changelog": "3.3.0",
-    "eslint": "8.19.0",
-    "semantic-release": "19.0.3"
+    "eslint": "8.19.0"
   },
   "dependencies": {
     "axios": "0.27.2",
