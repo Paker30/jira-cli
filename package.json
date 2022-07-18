@@ -9,6 +9,7 @@
   },
   "scripts": {
     "commit": "cz",
+    "docker": "docker build . -t jira-cli:${npm_package_version} -t jira-cli:latest",
     "start": "src/index.js"
   },
   "repository": {

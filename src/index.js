@@ -18,7 +18,6 @@ Usage:
   jira-cli config print
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
-  jira-cli issue split <project> <issue> --original-develop=<original_develop> [--original-validation=<original_validation>]
   jira-cli -h | --help
   jira-cli -v | --version
 
