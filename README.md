@@ -26,7 +26,7 @@ Usage:
 
 To install the tool execute the next command
 
-> npm i -g jira-cli
+> npm i -g @Paker30/jira-cli
 
 And check the version of the tool
 
