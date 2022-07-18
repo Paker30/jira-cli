@@ -18,6 +18,7 @@ Usage:
   jira-cli config print
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
+  jira-cli issue split <project> <issue> --original-develop=<original_develop> [--original-validation=<original_validation>]
   jira-cli -h | --help
   jira-cli -v | --version
 
@@ -105,6 +106,60 @@ const main = (options) => {
             }
           }
         })
+          .then(({ data }) => console.log(data))
+          .catch(console.error)
+      }
+
+      if (options.slpit) {
+        const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
+        const bodyDevelop = {
+          fields: {
+            project: {
+              key: options['<project>']
+            },
+            parent: {
+              key: options['<issue>']
+            },
+            summary: "Develop",
+            issuetype: {
+              id: '5'
+            }
+          }
+        };
+        const bodyValidate = {
+          fields: {
+            project: {
+              key: options['<project>']
+            },
+            parent: {
+              key: options['<issue>']
+            },
+            summary: "Validation",
+            issuetype: {
+              id: '5'
+            }
+          }
+        };
+        const develop = axios({
+          method: 'post',
+          url: `${config.get('url')}/rest/api/2/issue`,
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Basic ${toBase64(credentials)}`
+          },
+          data: bodyDevelop
+        });
+        const validate = axios({
+          method: 'post',
+          url: `${config.get('url')}/rest/api/2/issue`,
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Basic ${toBase64(credentials)}`
+          },
+          data: bodyValidate
+        });
+        
+        return Promise.all([develop, validate])
           .then(({ data }) => console.log(data))
           .catch(console.error)
       }
