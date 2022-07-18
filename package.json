@@ -1,5 +1,5 @@
 {
-  "name": "@Paker30/jira-cli",
+  "name": "cli-jira",
   "version": "1.0.0",
   "description": "Jira cli tool with some features I like to lunch from a terminal",
   "main": "src/index.js",
