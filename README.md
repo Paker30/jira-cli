@@ -1,4 +1,4 @@
-# jira-cli
+# cli-jira
 
 The aim of this tool is performing some actions which are common to my daily work with Jira in a smother way, it's not my purpose to handle Jira form this tool neither to have actions I don't use in my developing workflow -there're better tools for that, for example [ankitpokhrel/jira-cli](https://github.com/ankitpokhrel/jira-cli)-
 
@@ -26,7 +26,7 @@ Usage:
 
 To install the tool execute the next command
 
-> npm i -g @Paker30/jira-cli
+> npm i -g cli-jira
 
 And check the version of the tool
 
