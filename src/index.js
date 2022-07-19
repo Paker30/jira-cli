@@ -28,7 +28,7 @@ Options:
 ""`;
 
 const config = new Conf({
-  configName: 'jira-cli'
+  configName: 'cli-jira'
 });
 
 const main = (options) => {
