@@ -18,8 +18,10 @@ const getUrl = get(is($.Boolean))('url');
 const getPrint = get(is($.Boolean))('print');
 const getIssue = get(is($.Boolean))('issue');
 const getEstimation = get(is($.Boolean))('estimation');
+const getAssignee = get(is($.Boolean))('assignee');
 const getOriginal = get(is($.String))('--original');
 const getRemaining = get(is($.String))('--remaining');
+const getDeveloper = get(is($.String))('<developer>');
 const toBoolean = compose(maybe(false)(I));
 const setCredentials = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
@@ -33,6 +35,10 @@ const setEstimation = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getIssue, getSet, getEstimation]);
+const setAssignation = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getSet, getAssignee]);
 const printConfig = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -57,6 +63,19 @@ const estimationBody = lift2((estimation) => (remainingEstimation) => ({
 }))
   (compose(maybe({})(estimate => ({ originalEstimate: estimate })))(getOriginal))
   (compose(maybe({})(estimate => ({ remainingEstimate: estimate })))(getRemaining));
+const assigneeBody = compose
+  ((developer) => ({
+    update: {
+      assignee: [{
+        set: developer
+      }]
+    }
+  }))
+  (
+    compose
+      (maybe({})(developer => ({ name: developer })))
+      (getDeveloper)
+  );
 const printConfiguration = (config) => console.log(config.store);
 const addEstimation = (config) => (options) =>
   axios({
@@ -74,6 +93,18 @@ const addEstimation = (config) => (options) =>
     .catch((error) => {
       console.log(error);
     });
+const assignTo = (config) => (options) =>
+  axios({
+    method: 'put',
+    url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Basic ${toBase64(concatCredentials(config))}`
+    },
+    data: assigneeBody(options)
+  })
+    .then(({ data }) => console.log(data))
+    .catch(console.error);
 
 const doc = `""Jira Cli.
 
@@ -101,30 +132,10 @@ const main = (options) => {
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
   ifElse(toBoolean(setEstimation))(addEstimation(config))(I)(options);
+  ifElse(toBoolean(setAssignation))(assignTo(config))(I)(options);
 
   if (options.issue) {
     if (options.set) {
-      if (options.assignee) {
-        const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
-        return axios({
-          method: 'put',
-          url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(credentials)}`
-          },
-          data: {
-            update: {
-              assignee: [{
-                set: { name: `${options['<developer>']}` }
-              }]
-            }
-          }
-        })
-          .then(({ data }) => console.log(data))
-          .catch(console.error)
-      }
-
       if (options.slpit) {
         const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
         const bodyDevelop = {
