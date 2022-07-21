@@ -3,21 +3,24 @@
 import axios from 'axios';
 import * as Docopt from 'docopt';
 import S from 'sanctuary';
-const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe } = S;
+const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe, pipeK } = S;
 import $ from 'sanctuary-def';
 import Conf from 'conf';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json');
 const { docopt } = Docopt;
+const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
 const getConfig = get(is($.Boolean))('config');
 const getSet = get(is($.Boolean))('set');
 const getCredentials = get(is($.Boolean))('credentials');
 const getUrl = get(is($.Boolean))('url');
 const getPrint = get(is($.Boolean))('print');
+const getIssue = get(is($.Boolean))('issue');
+const getEstimation = get(is($.Boolean))('estimation');
+const getOriginal = get(is($.String))('--original');
+const getRemaining = get(is($.String))('--remaining');
 const toBoolean = compose(maybe(false)(I));
-
-const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
 const setCredentials = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -26,6 +29,10 @@ const setUrl = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getConfig, getUrl]);
+const setEstimation = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getSet, getEstimation]);
 const printConfig = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -43,7 +50,30 @@ const updateUrl = (config) => (options) => {
     url: options['<address>']
   });
 };
+const estimationBody = lift2((estimation) => (remainingEstimation) => ({
+  'update': {
+    'timetracking': [{ 'edit': { ...estimation, ...remainingEstimation } }]
+  }
+}))
+  (compose(maybe({})(estimate => ({ originalEstimate: estimate })))(getOriginal))
+  (compose(maybe({})(estimate => ({ remainingEstimate: estimate })))(getRemaining));
 const printConfiguration = (config) => console.log(config.store);
+const addEstimation = (config) => (options) =>
+  axios({
+    method: 'put',
+    url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Basic ${toBase64(concatCredentials(config))}`
+    },
+    data: estimationBody(options)
+  })
+    .then(({ data }) => {
+      console.log(data)
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
 const doc = `""Jira Cli.
 
@@ -70,39 +100,10 @@ const main = (options) => {
   ifElse(toBoolean(printConfig))(() => printConfiguration(config))(I)(options);
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
+  ifElse(toBoolean(setEstimation))(addEstimation(config))(I)(options);
 
   if (options.issue) {
     if (options.set) {
-      if (options.estimation) {
-        const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
-        const estimation = {
-          originalEstimate: options['--original']
-        };
-        if (options['--remaining']) {
-          estimation.remainingEstimate = options['--remaining'];
-        }
-        const body = {
-          'update': {
-            'timetracking': [{ 'edit': { ...estimation } }]
-          }
-        };
-
-        return axios({
-          method: 'put',
-          url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(credentials)}`
-          },
-          data: body
-        })
-          .then(({ data }) => {
-            console.log(data)
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
       if (options.assignee) {
         const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
         return axios({
