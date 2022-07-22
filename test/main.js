@@ -19,7 +19,9 @@ import {
     setAssignation,
     printConfig,
     estimationBody,
-    assigneeBody
+    assigneeBody,
+    updateUrl,
+    updateCredentials
 } from '../src/main.js';
 
 describe('Index', function () {
@@ -133,24 +135,54 @@ describe('Index', function () {
     describe('request bodies', () => {
         describe('estimation', () => {
             it('original estimation', () => {
-                assert.deepStrictEqual(estimationBody({'--original': '1d'}), {'update': {
-                    'timetracking': [{ 'edit': { originalEstimate: '1d' } }]
-                  }});
+                assert.deepStrictEqual(estimationBody({ '--original': '1d' }), {
+                    'update': {
+                        'timetracking': [{ 'edit': { originalEstimate: '1d' } }]
+                    }
+                });
             });
             it('original and remaining estimation', () => {
-                assert.deepStrictEqual(estimationBody({'--original': '1d', '--remaining': '3d'}), {'update': {
-                    'timetracking': [{ 'edit': { originalEstimate: '1d', remainingEstimate: '3d' } }]
-                  }});
+                assert.deepStrictEqual(estimationBody({ '--original': '1d', '--remaining': '3d' }), {
+                    'update': {
+                        'timetracking': [{ 'edit': { originalEstimate: '1d', remainingEstimate: '3d' } }]
+                    }
+                });
             });
         });
         it('assignee', () => {
-            assert.deepEqual(assigneeBody({'<developer>': 'mortadelo'}), {
+            assert.deepEqual(assigneeBody({ '<developer>': 'mortadelo' }), {
                 update: {
-                  assignee: [{
-                    set: { name: 'mortadelo' }
-                  }]
+                    assignee: [{
+                        set: { name: 'mortadelo' }
+                    }]
                 }
-              });
+            });
         });
     });
+    it('update url', () => {
+        const conf = {
+            url: '',
+            set: function ({ url }) {
+                this.url = url;
+            }
+        };
+        updateUrl(conf)({ '<address>': 'http://localhost:8080' });
+        assert.equal(conf.url, 'http://localhost:8080');
+    });
+    it('update credentials', () => {
+        const conf = {
+            credentials: {
+                user: '',
+                password: '',
+            },
+            set: function ({ credentials }) {
+                this.credentials = credentials;
+            }
+        };
+        updateCredentials(conf)({ '<user>': 'mortadelo', '<password>': 'really long and strong' });
+        assert.deepEqual(conf.credentials, {
+            password: 'really long and strong',
+            user: 'mortadelo'
+        });
+    })
 });
