@@ -4,6 +4,7 @@ const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe, pipe
 import $ from 'sanctuary-def';
 import Conf from 'conf';
 const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
+const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
 export const getConfig = get(is($.Boolean))('config');
 export const getSet = get(is($.Boolean))('set');
 export const getCredentials = get(is($.Boolean))('credentials');
@@ -107,6 +108,7 @@ Usage:
   jira-cli config print
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
+  jira-cli issue set ready <issue> [<project>]
   jira-cli -h | --help
   jira-cli -v | --version
 
@@ -115,6 +117,8 @@ Options:
   -v --version     Show version.
 
 ""`;
+
+const DEFAULT_PROJECT = 'IPLUI';
 
 const config = new Conf({
   configName: 'cli-jira'
@@ -129,34 +133,22 @@ export default (options) => {
 
   if (options.issue) {
     if (options.set) {
-      if (options.slpit) {
+      if (options.ready) {
         const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
-        const bodyDevelop = {
-          fields: {
-            project: {
-              key: options['<project>']
-            },
-            parent: {
-              key: options['<issue>']
-            },
-            summary: "Develop",
-            issuetype: {
-              id: '5'
+        const fields = {
+          project: {
+            key: options['<project>'] || DEFAULT_PROJECT
+          },
+          parent: {
+            key: options['<issue>']
+          },
+          components: [
+            {
+              id: '27319' //ipl
             }
-          }
-        };
-        const bodyValidate = {
-          fields: {
-            project: {
-              key: options['<project>']
-            },
-            parent: {
-              key: options['<issue>']
-            },
-            summary: "Validation",
-            issuetype: {
-              id: '5'
-            }
+          ],
+          issuetype: {
+            id: '5'
           }
         };
         const develop = axios({
@@ -164,23 +156,23 @@ export default (options) => {
           url: `${config.get('url')}/rest/api/2/issue`,
           headers: {
             'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(credentials)}`
+            'Authorization': `Basic ${toBase64(concatCredentials(config))}`
           },
-          data: bodyDevelop
+          data: { field: { ...fields, description: 'Develop' } }
         });
         const validate = axios({
           method: 'post',
           url: `${config.get('url')}/rest/api/2/issue`,
           headers: {
             'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(credentials)}`
+            'Authorization': `Basic ${toBase64(concatCredentials(config))}`
           },
-          data: bodyValidate
+          data: { field: { ...fields, description: 'Validate' } }
         });
 
         return Promise.all([develop, validate])
           .then(({ data }) => console.log(data))
-          .catch(console.error)
+          .catch(console.error);
       }
     }
   }
