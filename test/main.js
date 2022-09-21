@@ -17,6 +17,7 @@ import {
     setUrl,
     setEstimation,
     setAssignation,
+    setReady,
     printConfig,
     estimationBody,
     assigneeBody,
@@ -127,6 +128,9 @@ describe('Index', function () {
         });
         it('add assignation', () => {
             assert.strictEqual(show(setAssignation({ issue: true, set: true, assignee: true })), show(Just(true)));
+        });
+        it('create subtasks: validate and develop', () => {
+            assert.strictEqual(show(setReady({ issue: true, set: true, ready: true })), show(Just(true)));
         });
         it('print configuration', () => {
             assert.strictEqual(show(printConfig({ config: true, print: true })), show(Just(true)));

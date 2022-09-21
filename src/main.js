@@ -13,6 +13,7 @@ export const getPrint = get(is($.Boolean))('print');
 export const getIssue = get(is($.Boolean))('issue');
 export const getEstimation = get(is($.Boolean))('estimation');
 export const getAssignee = get(is($.Boolean))('assignee');
+export const getReady = get(is($.Boolean))('ready');
 export const getOriginal = get(is($.String))('--original');
 export const getRemaining = get(is($.String))('--remaining');
 export const getDeveloper = get(is($.String))('<developer>');
@@ -33,6 +34,10 @@ export const setAssignation = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getIssue, getSet, getAssignee]);
+export const setReady = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getSet, getReady]);
 export const printConfig = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -99,6 +104,48 @@ export const assignTo = (config) => (options) =>
   })
     .then(({ data }) => console.log(data))
     .catch(console.error);
+export const splitIntoSubtasks = (config) => (options) => {
+  const credentials = `Basic ${toBase64(concatCredentials(config))}`;
+  const fields = {
+    project: {
+      key: options['<project>']
+    },
+    parent: {
+      key: options['<issue>']
+    },
+    components: [
+      {
+        id: options['<component>'] || '27319' //ipl
+      }
+    ],
+    issuetype: {
+      id: '5'
+    }
+  };
+
+  const develop = axios({
+    method: 'post',
+    url: `${config.get('url')}/rest/api/2/issue`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': credentials
+    },
+    data: { field: { ...fields, description: 'Develop' } }
+  });
+  const validate = axios({
+    method: 'post',
+    url: `${config.get('url')}/rest/api/2/issue`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': credentials
+    },
+    data: { field: { ...fields, description: 'Validate' } }
+  });
+
+  return Promise.all([develop, validate])
+    .then(({ data }) => console.log(data))
+    .catch(console.error);
+}
 
 export const doc = `""Jira Cli.
 
@@ -129,50 +176,5 @@ export default (options) => {
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
   ifElse(toBoolean(setEstimation))(addEstimation(config))(I)(options);
   ifElse(toBoolean(setAssignation))(assignTo(config))(I)(options);
-
-  if (options.issue) {
-    if (options.set) {
-      if (options.ready) {
-        const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
-        const fields = {
-          project: {
-            key: options['<project>']
-          },
-          parent: {
-            key: options['<issue>']
-          },
-          components: [
-            {
-              id: options['<component>'] || '27319' //ipl
-            }
-          ],
-          issuetype: {
-            id: '5'
-          }
-        };
-        const develop = axios({
-          method: 'post',
-          url: `${config.get('url')}/rest/api/2/issue`,
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(concatCredentials(config))}`
-          },
-          data: { field: { ...fields, description: 'Develop' } }
-        });
-        const validate = axios({
-          method: 'post',
-          url: `${config.get('url')}/rest/api/2/issue`,
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Basic ${toBase64(concatCredentials(config))}`
-          },
-          data: { field: { ...fields, description: 'Validate' } }
-        });
-
-        return Promise.all([develop, validate])
-          .then(({ data }) => console.log(data))
-          .catch(console.error);
-      }
-    }
-  }
+  ifElse(toBoolean(setReady))(splitIntoSubtasks(config))(I)(options);
 }
