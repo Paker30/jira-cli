@@ -108,7 +108,7 @@ Usage:
   jira-cli config print
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
-  jira-cli issue set ready <issue> [<project>]
+  jira-cli issue set ready <issue> <project> [<component>]
   jira-cli -h | --help
   jira-cli -v | --version
 
@@ -118,7 +118,6 @@ Options:
 
 ""`;
 
-const DEFAULT_PROJECT = 'IPLUI';
 
 const config = new Conf({
   configName: 'cli-jira'
@@ -137,14 +136,14 @@ export default (options) => {
         const credentials = `${config.get('credentials.user')}:${config.get('credentials.password')}`;
         const fields = {
           project: {
-            key: options['<project>'] || DEFAULT_PROJECT
+            key: options['<project>']
           },
           parent: {
             key: options['<issue>']
           },
           components: [
             {
-              id: '27319' //ipl
+              id: options['<component>'] || '27319' //ipl
             }
           ],
           issuetype: {
