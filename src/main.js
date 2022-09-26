@@ -168,7 +168,8 @@ Options:
 
 
 const config = new Conf({
-  configName: 'cli-jira'
+  configName: 'cli-jira',
+  projectName: 'cli-jira'
 });
 
 export default (options) => {
