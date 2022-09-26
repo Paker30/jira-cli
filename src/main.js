@@ -2,6 +2,7 @@ import axios from 'axios';
 import S from 'sanctuary';
 const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe, pipeK } = S;
 import $ from 'sanctuary-def';
+import { fork, encaseP } from 'fluture';
 import Conf from 'conf';
 const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
 const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
@@ -76,34 +77,31 @@ export const assigneeBody = compose
       (getDeveloper)
   );
 export const printConfiguration = (config) => console.log(config.store);
-export const addEstimation = (config) => (options) =>
-  axios({
-    method: 'put',
-    url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Basic ${toBase64(concatCredentials(config))}`
-    },
-    data: estimationBody(options)
-  })
-    .then(({ data }) => {
-      console.log(data)
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-export const assignTo = (config) => (options) =>
-  axios({
-    method: 'put',
-    url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Basic ${toBase64(concatCredentials(config))}`
-    },
-    data: assigneeBody(options)
-  })
-    .then(({ data }) => console.log(data))
-    .catch(console.error);
+
+export const addEstimation = (axios) => (config) => (options) =>
+encaseP(axios)({
+  method: 'put',
+  url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+  headers: {
+    'Accept': 'application/json',
+    'Authorization': `Basic ${toBase64(concatCredentials(config))}`
+  },
+  data: estimationBody(options)
+})
+.pipe(fork(() => console.error('something went wrong'))(() => console.log('success')));
+
+export const assignTo = (axios) => (config) => (options) =>
+encaseP(axios)({
+  method: 'put',
+  url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+  headers: {
+    'Accept': 'application/json',
+    'Authorization': `Basic ${toBase64(concatCredentials(config))}`
+  },
+  data: assigneeBody(options)
+})
+.pipe(fork(() => console.error('something went wrong'))(() => console.log('success')));
+
 export const splitIntoSubtasks = (config) => (options) => {
   const credentials = `Basic ${toBase64(concatCredentials(config))}`;
   const fields = {
@@ -174,7 +172,7 @@ export default (options) => {
   ifElse(toBoolean(printConfig))(() => printConfiguration(config))(I)(options);
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
-  ifElse(toBoolean(setEstimation))(addEstimation(config))(I)(options);
-  ifElse(toBoolean(setAssignation))(assignTo(config))(I)(options);
+  ifElse(toBoolean(setEstimation))(addEstimation(axios)(config))(I)(options);
+  ifElse(toBoolean(setAssignation))(assignTo(axios)(config))(I)(options);
   ifElse(toBoolean(setReady))(splitIntoSubtasks(config))(I)(options);
 }
