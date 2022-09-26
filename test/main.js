@@ -25,7 +25,8 @@ import {
     updateUrl,
     updateCredentials,
     addEstimation,
-    assignTo
+    assignTo,
+    splitIntoSubtasks
 } from '../src/main.js';
 
 describe('Index', function () {
@@ -240,6 +241,24 @@ describe('Index', function () {
                 (fakeConfig)
                 ({ '<issue>': 'ID-123', '<developer>': 'mortadelo@tia.es' });
             assert(fakeAxios.called);
+        });
+    });
+    describe('splitIntoSubtasks', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().resolves({});
+            splitIntoSubtasks
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
+            assert(fakeAxios.calledTwice);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            splitIntoSubtasks
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
+            assert(fakeAxios.calledTwice);
         });
     });
 });
