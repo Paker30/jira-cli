@@ -250,6 +250,23 @@ describe('Index', function () {
                 (fakeAxios)
                 (fakeConfig)
                 ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
+            assert.deepEqual(
+                fakeAxios.getCall(0).args[0].data,
+                {
+                    fields: {
+                        project: { key: 'elasticina' },
+                        parent: { key: 'ID-123' },
+                        components: [
+                            {
+                                id: '27319'
+                            }
+                        ],
+                        issuetype: { id: '5' },
+                        description: '',
+                        summary: 'Validate'
+                    }
+                });
+            assert.equal(fakeAxios.getCall(1).args[0].data.fields.summary, 'Develop');
             assert(fakeAxios.calledTwice);
         });
         it('request fails', () => {
