@@ -1,4 +1,5 @@
 import assert from 'assert';
+import sinon from 'sinon';
 import S from 'sanctuary';
 const { show, Just, Nothing } = S;
 import {
@@ -22,10 +23,27 @@ import {
     estimationBody,
     assigneeBody,
     updateUrl,
-    updateCredentials
+    updateCredentials,
+    addEstimation,
+    assignTo,
+    splitIntoSubtasks
 } from '../src/main.js';
 
 describe('Index', function () {
+    const fakeConfig = {
+        get: (path) => {
+            switch (path) {
+                case 'url':
+                    return 'fake url';
+                case 'credentials.user':
+                    return 'filemon';
+                case 'credentials.password':
+                    return 'TIA123';
+
+            }
+        }
+    };
+
     describe('getters', function () {
         describe('getConfig', () => {
             it('there is config key', () => {
@@ -188,5 +206,59 @@ describe('Index', function () {
             password: 'really long and strong',
             user: 'mortadelo'
         });
-    })
+    });
+    describe('addEstimation', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().resolves({});
+            addEstimation
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123' });
+            assert(fakeAxios.called);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            addEstimation
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123' });
+            assert(fakeAxios.called);
+        });
+    });
+    describe('assignTo', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().resolves({});
+            assignTo
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<developer>': 'mortadelo@tia.es' });
+            assert(fakeAxios.called);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            assignTo
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<developer>': 'mortadelo@tia.es' });
+            assert(fakeAxios.called);
+        });
+    });
+    describe('splitIntoSubtasks', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().resolves({});
+            splitIntoSubtasks
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
+            assert(fakeAxios.calledTwice);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            splitIntoSubtasks
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
+            assert(fakeAxios.calledTwice);
+        });
+    });
 });

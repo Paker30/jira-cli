@@ -2,6 +2,7 @@ import axios from 'axios';
 import S from 'sanctuary';
 const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe, pipeK } = S;
 import $ from 'sanctuary-def';
+import { fork, encaseP, both } from 'fluture';
 import Conf from 'conf';
 const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
 const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
@@ -76,8 +77,9 @@ export const assigneeBody = compose
       (getDeveloper)
   );
 export const printConfiguration = (config) => console.log(config.store);
-export const addEstimation = (config) => (options) =>
-  axios({
+
+export const addEstimation = (axios) => (config) => (options) =>
+  encaseP(axios)({
     method: 'put',
     url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
     headers: {
@@ -86,14 +88,10 @@ export const addEstimation = (config) => (options) =>
     },
     data: estimationBody(options)
   })
-    .then(({ data }) => {
-      console.log(data)
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-export const assignTo = (config) => (options) =>
-  axios({
+    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
+
+export const assignTo = (axios) => (config) => (options) =>
+  encaseP(axios)({
     method: 'put',
     url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
     headers: {
@@ -102,9 +100,9 @@ export const assignTo = (config) => (options) =>
     },
     data: assigneeBody(options)
   })
-    .then(({ data }) => console.log(data))
-    .catch(console.error);
-export const splitIntoSubtasks = (config) => (options) => {
+    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
+
+export const splitIntoSubtasks = (axios) => (config) => (options) => {
   const credentials = `Basic ${toBase64(concatCredentials(config))}`;
   const fields = {
     project: {
@@ -115,7 +113,7 @@ export const splitIntoSubtasks = (config) => (options) => {
     },
     components: [
       {
-        id: options['<component>'] || '27319' //ipl
+        id: options['<component>'] || '27319'
       }
     ],
     issuetype: {
@@ -123,7 +121,7 @@ export const splitIntoSubtasks = (config) => (options) => {
     }
   };
 
-  const develop = axios({
+  const develop = {
     method: 'post',
     url: `${config.get('url')}/rest/api/2/issue`,
     headers: {
@@ -131,8 +129,8 @@ export const splitIntoSubtasks = (config) => (options) => {
       'Authorization': credentials
     },
     data: { field: { ...fields, description: 'Develop' } }
-  });
-  const validate = axios({
+  };
+  const validate = {
     method: 'post',
     url: `${config.get('url')}/rest/api/2/issue`,
     headers: {
@@ -140,11 +138,14 @@ export const splitIntoSubtasks = (config) => (options) => {
       'Authorization': credentials
     },
     data: { field: { ...fields, description: 'Validate' } }
-  });
+  };
 
-  return Promise.all([develop, validate])
-    .then(({ data }) => console.log(data))
-    .catch(console.error);
+  fork(({ response }) => console.error(response))
+    (() => console.log('success'))
+    (both
+      (encaseP(axios)(develop))
+      (encaseP(axios)(validate))
+    );
 }
 
 export const doc = `""Jira Cli.
@@ -167,14 +168,15 @@ Options:
 
 
 const config = new Conf({
-  configName: 'cli-jira'
+  configName: 'cli-jira',
+  projectName: 'cli-jira'
 });
 
 export default (options) => {
   ifElse(toBoolean(printConfig))(() => printConfiguration(config))(I)(options);
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
-  ifElse(toBoolean(setEstimation))(addEstimation(config))(I)(options);
-  ifElse(toBoolean(setAssignation))(assignTo(config))(I)(options);
-  ifElse(toBoolean(setReady))(splitIntoSubtasks(config))(I)(options);
+  ifElse(toBoolean(setEstimation))(addEstimation(axios)(config))(I)(options);
+  ifElse(toBoolean(setAssignation))(assignTo(axios)(config))(I)(options);
+  ifElse(toBoolean(setReady))(splitIntoSubtasks(axios)(config))(I)(options);
 }

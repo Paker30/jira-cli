@@ -28,16 +28,21 @@
     "url": "https://github.com/Paker30/jira-cli/issues"
   },
   "homepage": "https://github.com/Paker30/jira-cli#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "c8": "^7.12.0",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.19.0",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0"
   },
   "dependencies": {
     "axios": "0.27.2",
     "conf": "10.1.2",
     "docopt": "0.6.2",
+    "fluture": "^14.0.0",
     "sanctuary": "^3.1.0",
     "sanctuary-def": "^0.22.0"
   },
