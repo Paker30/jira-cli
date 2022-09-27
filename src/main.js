@@ -88,7 +88,7 @@ export const addEstimation = (axios) => (config) => (options) =>
     },
     data: estimationBody(options)
   })
-    .pipe(fork(() => console.error('something went wrong'))(() => console.log('success')));
+    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
 
 export const assignTo = (axios) => (config) => (options) =>
   encaseP(axios)({
@@ -100,7 +100,7 @@ export const assignTo = (axios) => (config) => (options) =>
     },
     data: assigneeBody(options)
   })
-    .pipe(fork(() => console.error('something went wrong'))(() => console.log('success')));
+    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
 
 export const splitIntoSubtasks = (axios) => (config) => (options) => {
   const credentials = `Basic ${toBase64(concatCredentials(config))}`;
@@ -140,7 +140,7 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
     data: { field: { ...fields, description: 'Validate' } }
   };
 
-  fork(() => console.error('something went wrong'))
+  fork(({ response }) => console.error(response))
     (() => console.log('success'))
     (both
       (encaseP(axios)(develop))
