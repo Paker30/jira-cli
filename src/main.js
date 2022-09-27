@@ -118,7 +118,8 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
     ],
     issuetype: {
       id: '5'
-    }
+    },
+    description: ''
   };
 
   const develop = {
@@ -128,7 +129,7 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
       'Accept': 'application/json',
       'Authorization': credentials
     },
-    data: { field: { ...fields, description: 'Develop' } }
+    data: { fields: { ...fields, summary: 'Develop' } }
   };
   const validate = {
     method: 'post',
@@ -137,7 +138,7 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
       'Accept': 'application/json',
       'Authorization': credentials
     },
-    data: { field: { ...fields, description: 'Validate' } }
+    data: { fields: { ...fields, summary: 'Validate' } }
   };
 
   fork(({ response }) => console.error(response))
