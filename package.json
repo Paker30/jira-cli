@@ -1,6 +1,6 @@
 {
   "name": "cli-jira",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Jira cli tool with some features I like to lunch from a terminal",
   "main": "src/index.js",
   "type": "module",
