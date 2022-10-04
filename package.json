@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/Paker30/jira-cli#readme",
   "engines": {
-    "node": ">=18"
+    "node": ">=14"
   },
   "devDependencies": {
     "c8": "^7.12.0",
