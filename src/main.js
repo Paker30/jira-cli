@@ -1,10 +1,11 @@
+import { Buffer } from 'node:buffer';
 import axios from 'axios';
 import S from 'sanctuary';
-const { get, reduce, Just, and, lift2, is, show, ifElse, I, compose, maybe, pipeK } = S;
+const { get, reduce, Just, and, lift2, is, ifElse, I, compose, maybe } = S;
 import $ from 'sanctuary-def';
 import { fork, encaseP, both } from 'fluture';
 import Conf from 'conf';
-const toBase64 = (text) => globalThis.btoa(unescape(encodeURIComponent(text)));
+export const toBase64 = (text) => Buffer.from(unescape(encodeURIComponent(text))).toString('base64');
 const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
 export const getConfig = get(is($.Boolean))('config');
 export const getSet = get(is($.Boolean))('set');

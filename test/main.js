@@ -26,7 +26,8 @@ import {
     updateCredentials,
     addEstimation,
     assignTo,
-    splitIntoSubtasks
+    splitIntoSubtasks,
+    toBase64
 } from '../src/main.js';
 
 describe('Index', function () {
@@ -276,6 +277,9 @@ describe('Index', function () {
                 (fakeConfig)
                 ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
             assert(fakeAxios.calledTwice);
+        });
+        it('base64', () => {
+            assert.equal(toBase64('hello world'),'aGVsbG8gd29ybGQ=');
         });
     });
 });
