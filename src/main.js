@@ -143,7 +143,7 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
   };
 
   fork(({ response }) => console.error(response))
-    (() => console.log('success'))
+    ((message) => message.map(({ data: { key } }) => console.log(key)))
     (both
       (encaseP(axios)(develop))
       (encaseP(axios)(validate))
