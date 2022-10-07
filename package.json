@@ -11,11 +11,12 @@
     "commit": "cz",
     "docker": "docker build . -t jira-cli:${npm_package_version} -t jira-cli:latest",
     "test": "c8 mocha",
-    "test:ci": "mocha test/ --reporter nyan"
+    "test:ci": "mocha test/ --reporter nyan",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Paker30/jira-cli.git"
+    "url": "https://github.com/Paker30/jira-cli.git"
   },
   "keywords": [
     "jira",
@@ -36,7 +37,8 @@
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.19.0",
     "mocha": "^10.0.0",
-    "sinon": "^14.0.0"
+    "sinon": "^14.0.0",
+    "semantic-release": "^19.0.5"
   },
   "dependencies": {
     "axios": "0.27.2",
