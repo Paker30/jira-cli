@@ -89,7 +89,7 @@ export const addEstimation = (axios) => (config) => (options) =>
     },
     data: estimationBody(options)
   })
-    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
+    .pipe(fork(({ response }) => console.error(response))(() => console.log(options['<issue>'])));
 
 export const assignTo = (axios) => (config) => (options) =>
   encaseP(axios)({
@@ -101,7 +101,7 @@ export const assignTo = (axios) => (config) => (options) =>
     },
     data: assigneeBody(options)
   })
-    .pipe(fork(({ response }) => console.error(response))(() => console.log('success')));
+    .pipe(fork(({ response }) => console.error(response))(() => console.log(options['<issue>'])));
 
 export const splitIntoSubtasks = (axios) => (config) => (options) => {
   const credentials = `Basic ${toBase64(concatCredentials(config))}`;
