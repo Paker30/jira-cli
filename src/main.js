@@ -14,6 +14,7 @@ export const getUrl = get(is($.Boolean))('url');
 export const getPrint = get(is($.Boolean))('print');
 export const getIssue = get(is($.Boolean))('issue');
 export const getEstimation = get(is($.Boolean))('estimation');
+export const getSprint = get(is($.String))('sprint');
 export const getAssignee = get(is($.Boolean))('assignee');
 export const getReady = get(is($.Boolean))('ready');
 export const getOriginal = get(is($.String))('--original');
@@ -28,6 +29,10 @@ export const setUrl = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getConfig, getUrl]);
+export const setSprint = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getSet, getSprint]);
 export const setEstimation = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -156,6 +161,7 @@ Usage:
   jira-cli config set credentials <user> <password>
   jira-cli config set url <address>
   jira-cli config print
+  jira-cli issue set sprint <issue> [--sprint=<sprint>]
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
   jira-cli issue set ready <issue> <project> [<component>]
@@ -178,6 +184,7 @@ export default (options) => {
   ifElse(toBoolean(printConfig))(() => printConfiguration(config))(I)(options);
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
+  ifElse(toBoolean(setSprint))(addEstimation(axios)(config))(I)(options);
   ifElse(toBoolean(setEstimation))(addEstimation(axios)(config))(I)(options);
   ifElse(toBoolean(setAssignation))(assignTo(axios)(config))(I)(options);
   ifElse(toBoolean(setReady))(splitIntoSubtasks(axios)(config))(I)(options);
