@@ -27,7 +27,9 @@ import {
     addEstimation,
     assignTo,
     splitIntoSubtasks,
-    toBase64
+    toBase64,
+    addSubtask,
+    setSubtask
 } from '../src/main.js';
 
 describe('Index', function () {
@@ -44,6 +46,10 @@ describe('Index', function () {
             }
         }
     };
+
+    it('base64', () => {
+        assert.equal(toBase64('hello world'), 'aGVsbG8gd29ybGQ=');
+    });
 
     describe('getters', function () {
         describe('getConfig', () => {
@@ -147,6 +153,9 @@ describe('Index', function () {
         });
         it('add assignation', () => {
             assert.strictEqual(show(setAssignation({ issue: true, set: true, assignee: true })), show(Just(true)));
+        });
+        it('add subtask', () => {
+            assert.strictEqual(show(setSubtask({ issue: true, add: true, subtask: true })), show(Just(true)));
         });
         it('create subtasks: validate and develop', () => {
             assert.strictEqual(show(setReady({ issue: true, set: true, ready: true })), show(Just(true)));
@@ -278,8 +287,39 @@ describe('Index', function () {
                 ({ '<issue>': 'ID-123', '<project>': 'elasticina' });
             assert(fakeAxios.calledTwice);
         });
-        it('base64', () => {
-            assert.equal(toBase64('hello world'),'aGVsbG8gd29ybGQ=');
+    });
+    describe('addSubtask', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().resolves({});
+            addSubtask
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina', '<subtask>': 'probar en Mortadelo' });
+            assert.deepEqual(
+                fakeAxios.getCall(0).args[0].data,
+                {
+                    fields: {
+                        project: { key: 'elasticina' },
+                        parent: { key: 'ID-123' },
+                        components: [
+                            {
+                                id: '27319'
+                            }
+                        ],
+                        issuetype: { id: '5' },
+                        description: '',
+                        summary: 'probar en Mortadelo'
+                    }
+                });
+            assert(fakeAxios.calledOnce);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            addSubtask
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<project>': 'elasticina', '<subtask>': 'probar en Mortadelo' });
+            assert(fakeAxios.calledOnce);
         });
     });
 });

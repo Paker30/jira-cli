@@ -18,6 +18,8 @@ Usage:
   jira-cli config print
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
+  jira-cli issue set ready <issue> <project> [<component>]
+  jira-cli issue add subtask <issue> <project> <subtask> [<component>]
   jira-cli -h | --help
   jira-cli -v | --version
 ```
@@ -47,3 +49,10 @@ And a list with all the actions shows up
 - estimation: Issue's estimation, it can be added in any Jira supported format
 - user: Your Jira user name -you can see it at Jira's profile-
 - password: Your password Jira access
+- developer: Developer's name (it's the email without the email prefix)
+- --original: Jira ticket original estimation
+- --remaining: Jira ticket remaining estimation
+- issue: Jira ticket id
+- project: Jira project id
+- substask: Jira summary text
+- component: Jira type id (story, sub-task, etc) by default is sub-task

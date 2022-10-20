@@ -9,10 +9,12 @@ export const toBase64 = (text) => Buffer.from(unescape(encodeURIComponent(text))
 const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
 export const getConfig = get(is($.Boolean))('config');
 export const getSet = get(is($.Boolean))('set');
+export const getAdd = get(is($.Boolean))('add');
 export const getCredentials = get(is($.Boolean))('credentials');
 export const getUrl = get(is($.Boolean))('url');
 export const getPrint = get(is($.Boolean))('print');
 export const getIssue = get(is($.Boolean))('issue');
+export const getSubtask = get(is($.Boolean))('subtask');
 export const getEstimation = get(is($.Boolean))('estimation');
 export const getAssignee = get(is($.Boolean))('assignee');
 export const getReady = get(is($.Boolean))('ready');
@@ -40,6 +42,10 @@ export const setReady = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getIssue, getSet, getReady]);
+export const setSubtask = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getAdd, getSubtask]);
 export const printConfig = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -148,6 +154,40 @@ export const splitIntoSubtasks = (axios) => (config) => (options) => {
       (encaseP(axios)(develop))
       (encaseP(axios)(validate))
     );
+};
+
+export const addSubtask = (axios) => (config) => (options) => {
+  const credentials = `Basic ${toBase64(concatCredentials(config))}`;
+  const fields = {
+    project: {
+      key: options['<project>']
+    },
+    parent: {
+      key: options['<issue>']
+    },
+    components: [
+      {
+        id: options['<component>'] || '27319'
+      }
+    ],
+    issuetype: {
+      id: '5'
+    },
+    description: '',
+    summary: options['<subtask>']
+  };
+
+
+    encaseP(axios)({
+      method: 'post',
+      url: `${config.get('url')}/rest/api/2/issue`,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': credentials
+      },
+      data: { fields }
+    })
+      .pipe(fork(({ response }) => console.error(response))(({ data }) => console.log(data.key)));
 }
 
 export const doc = `""Jira Cli.
@@ -159,6 +199,7 @@ Usage:
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
   jira-cli issue set ready <issue> <project> [<component>]
+  jira-cli issue add subtask <issue> <project> <subtask> [<component>]
   jira-cli -h | --help
   jira-cli -v | --version
 
@@ -181,4 +222,5 @@ export default (options) => {
   ifElse(toBoolean(setEstimation))(addEstimation(axios)(config))(I)(options);
   ifElse(toBoolean(setAssignation))(assignTo(axios)(config))(I)(options);
   ifElse(toBoolean(setReady))(splitIntoSubtasks(axios)(config))(I)(options);
+  ifElse(toBoolean(setSubtask))(addSubtask(axios)(config))(I)(options);
 }
