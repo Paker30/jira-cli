@@ -29,7 +29,11 @@ import {
     splitIntoSubtasks,
     toBase64,
     addSubtask,
-    setSubtask
+    setSubtask,
+    setConfigSprint,
+    setSprint,
+    updateSprint,
+    assignSprint
 } from '../src/main.js';
 
 describe('Index', function () {
@@ -148,8 +152,14 @@ describe('Index', function () {
         it('add url', () => {
             assert.strictEqual(show(setUrl({ config: true, url: true })), show(Just(true)));
         });
+        it('add sprint custom field', () => {
+            assert.strictEqual(show(setConfigSprint({ config: true, sprint: true })), show(Just(true)));
+        });
         it('add estimation', () => {
             assert.strictEqual(show(setEstimation({ issue: true, set: true, estimation: true })), show(Just(true)));
+        });
+        it('add sprint', () => {
+            assert.strictEqual(show(setSprint({ issue: true, set: true, sprint: true })), show(Just(true)));
         });
         it('add assignation', () => {
             assert.strictEqual(show(setAssignation({ issue: true, set: true, assignee: true })), show(Just(true)));
@@ -201,6 +211,16 @@ describe('Index', function () {
         updateUrl(conf)({ '<address>': 'http://localhost:8080' });
         assert.equal(conf.url, 'http://localhost:8080');
     });
+    it('update sprint custom field', () => {
+        const conf = {
+            sprint: '',
+            set: function ({ sprint }) {
+                this.sprint = sprint;
+            }
+        };
+        updateSprint(conf)({ '<sprint>': 'custom field id' });
+        assert.equal(conf.sprint, 'custom field id');
+    });
     it('update credentials', () => {
         const conf = {
             credentials: {
@@ -233,6 +253,24 @@ describe('Index', function () {
                 (fakeConfig)
                 ({ '<issue>': 'ID-123' });
             assert(fakeAxios.called);
+        });
+    });
+    describe('assignSprint', () => {
+        it('operation goes as expected', () => {
+            const fakeAxios = sinon.stub().onFirstCall().resolves({ data: { values: [{ id: 'current sprint id' }] } }).onSecondCall().resolves({});
+            assignSprint
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<board>': '987' });
+            assert(fakeAxios.called);
+        });
+        it('request fails', () => {
+            const fakeAxios = sinon.stub().rejects({});
+            assignSprint
+                (fakeAxios)
+                (fakeConfig)
+                ({ '<issue>': 'ID-123', '<board>': '987' });
+            assert(fakeAxios.calledOnce);
         });
     });
     describe('assignTo', () => {
