@@ -16,6 +16,7 @@ Usage:
   jira-cli config set credentials <user> <password>
   jira-cli config set url <address>
   jira-cli config print
+  jira-cli issue set sprint <issue> <board>
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
   jira-cli issue set ready <issue> <project> [<component>]
@@ -56,3 +57,4 @@ And a list with all the actions shows up
 - project: Jira project id
 - substask: Jira summary text
 - component: Jira type id (story, sub-task, etc) by default is sub-task
+- board: Jira board ID (it's ```rapidView``` url param)
