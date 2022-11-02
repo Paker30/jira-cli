@@ -3,7 +3,7 @@ import axios from 'axios';
 import S from 'sanctuary';
 const { get, reduce, Just, and, lift2, is, ifElse, I, compose, maybe } = S;
 import $ from 'sanctuary-def';
-import { fork, encaseP, both } from 'fluture';
+import { fork, encaseP, both, map, chain } from 'fluture';
 import Conf from 'conf';
 export const toBase64 = (text) => Buffer.from(unescape(encodeURIComponent(text))).toString('base64');
 const concatCredentials = (config) => `${config.get('credentials.user')}:${config.get('credentials.password')}`;
@@ -16,6 +16,7 @@ export const getPrint = get(is($.Boolean))('print');
 export const getIssue = get(is($.Boolean))('issue');
 export const getSubtask = get(is($.Boolean))('subtask');
 export const getEstimation = get(is($.Boolean))('estimation');
+export const getSprint = get(is($.Boolean))('sprint');
 export const getAssignee = get(is($.Boolean))('assignee');
 export const getReady = get(is($.Boolean))('ready');
 export const getOriginal = get(is($.String))('--original');
@@ -30,6 +31,14 @@ export const setUrl = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
     ([getConfig, getUrl]);
+export const setConfigSprint = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getConfig, getSprint]);
+export const setSprint = options =>
+  reduce(acc => getter => lift2(and)(acc)(getter(options)))
+    (Just(true))
+    ([getIssue, getSet, getSprint]);
 export const setEstimation = options =>
   reduce(acc => getter => lift2(and)(acc)(getter(options)))
     (Just(true))
@@ -61,6 +70,11 @@ export const updateCredentials = (config) => (options) => {
 export const updateUrl = (config) => (options) => {
   config.set({
     url: options['<address>']
+  });
+};
+export const updateSprint = (config) => (options) => {
+  config.set({
+    sprint: options['<sprint>']
   });
 };
 export const estimationBody = lift2((estimation) => (remainingEstimation) => ({
@@ -96,6 +110,34 @@ export const addEstimation = (axios) => (config) => (options) =>
     data: estimationBody(options)
   })
     .pipe(fork(({ response }) => console.error(response))(() => console.log(options['<issue>'])));
+
+export const assignSprint = (axios) => (config) => (options) => {
+  const credentials = `Basic ${toBase64(concatCredentials(config))}`;
+
+  encaseP(axios)({
+    method: 'get',
+    url: `${config.get('url')}/rest/agile/1.0/board/${options['<board>']}/sprint?state=active`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': credentials
+    }
+  })
+    .pipe(chain(({ data }) => encaseP(axios)({
+      method: 'put',
+      url: `${config.get('url')}/rest/api/2/issue/${options['<issue>']}`,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': credentials
+      },
+      data: {
+        update: {
+          [config.get('sprint')]: [{ 'set': data.values[0].id }]
+        }
+      }
+    })
+    ))
+    .pipe(fork(({ response }) => console.error(response))(() => console.log(options['<issue>'])));
+};
 
 export const assignTo = (axios) => (config) => (options) =>
   encaseP(axios)({
@@ -178,16 +220,16 @@ export const addSubtask = (axios) => (config) => (options) => {
   };
 
 
-    encaseP(axios)({
-      method: 'post',
-      url: `${config.get('url')}/rest/api/2/issue`,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': credentials
-      },
-      data: { fields }
-    })
-      .pipe(fork(({ response }) => console.error(response))(({ data }) => console.log(data.key)));
+  encaseP(axios)({
+    method: 'post',
+    url: `${config.get('url')}/rest/api/2/issue`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': credentials
+    },
+    data: { fields }
+  })
+    .pipe(fork(({ response }) => console.error(response))(({ data }) => console.log(data.key)));
 }
 
 export const doc = `""Jira Cli.
@@ -195,7 +237,9 @@ export const doc = `""Jira Cli.
 Usage:
   jira-cli config set credentials <user> <password>
   jira-cli config set url <address>
+  jira-cli config set sprint <sprint>
   jira-cli config print
+  jira-cli issue set sprint <issue> <board>
   jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
   jira-cli issue set assignee <issue> <developer>
   jira-cli issue set ready <issue> <project> [<component>]
@@ -219,6 +263,8 @@ export default (options) => {
   ifElse(toBoolean(printConfig))(() => printConfiguration(config))(I)(options);
   ifElse(toBoolean(setCredentials))(updateCredentials(config))(I)(options);
   ifElse(toBoolean(setUrl))(updateUrl(config))(I)(options);
+  ifElse(toBoolean(setConfigSprint))(updateSprint(config))(I)(options);
+  ifElse(toBoolean(setSprint))(assignSprint(axios)(config))(I)(options);
   ifElse(toBoolean(setEstimation))(addEstimation(axios)(config))(I)(options);
   ifElse(toBoolean(setAssignation))(assignTo(axios)(config))(I)(options);
   ifElse(toBoolean(setReady))(splitIntoSubtasks(axios)(config))(I)(options);
