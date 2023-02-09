@@ -235,17 +235,17 @@ export const addSubtask = (axios) => (config) => (options) => {
 export const doc = `""Jira Cli.
 
 Usage:
-  jira-cli config set credentials <user> <password>
-  jira-cli config set url <address>
-  jira-cli config set sprint <sprint>
-  jira-cli config print
-  jira-cli issue set sprint <board> <issue>
-  jira-cli issue set estimation --original=<original_estimation> [--remaining=<remaining_estimation>] <issue>
-  jira-cli issue set assignee <developer> <issue>
-  jira-cli issue set ready <project> [<component>] <issue>
-  jira-cli issue add subtask <project> <subtask> [<component>] <issue>
-  jira-cli -h | --help
-  jira-cli -v | --version
+  cli-jira config set credentials <user> <password>
+  cli-jira config set url <address>
+  cli-jira config set sprint <sprint>
+  cli-jira config print
+  cli-jira issue set sprint <board> <issue>
+  cli-jira issue set estimation --original=<original_estimation> [--remaining=<remaining_estimation>] <issue>
+  cli-jira issue set assignee <developer> <issue>
+  cli-jira issue set ready <project> [<component>] <issue>
+  cli-jira issue add subtask <project> <subtask> [<component>] <issue>
+  cli-jira -h | --help
+  cli-jira -v | --version
 
 Options:
   -h --help     Show this screen.
