@@ -11,18 +11,18 @@ Even though, Jira is a powerful tool which I still learning to manage and 100% o
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 ```sh
-jira-cli
+cli-jira
 Usage:
-  jira-cli config set credentials <user> <password>
-  jira-cli config set url <address>
-  jira-cli config print
-  jira-cli issue set sprint <issue> <board>
-  jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
-  jira-cli issue set assignee <issue> <developer>
-  jira-cli issue set ready <issue> <project> [<component>]
-  jira-cli issue add subtask <issue> <project> <subtask> [<component>]
-  jira-cli -h | --help
-  jira-cli -v | --version
+  cli-jira config set credentials <user> <password>
+  cli-jira config set url <address>
+  cli-jira config print
+  cli-jira issue set sprint <board> <issue>
+  cli-jira issue set estimation --original=<original_estimation> [--remaining=<remaining_estimation>] <issue>
+  cli-jira issue set assignee <developer> <issue>
+  cli-jira issue set ready <project> [<component>] <issue>
+  cli-jira issue add subtask <project> <subtask> [<component>] <issue>
+  cli-jira -h | --help
+  cli-jira -v | --version
 ```
 
 ## Install
@@ -33,13 +33,13 @@ To install the tool execute the next command
 
 And check the version of the tool
 
-> jira-cli -v
+> cli-jira -v
 
 ## Actions
 
 In order to list all the actions you can execute with this tool, execute the next command in your terminal
 
-> jira-cli
+> cli-jira
 
 And a list with all the actions shows up
 
