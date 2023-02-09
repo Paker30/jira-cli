@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "bin": {
-    "jira-cli": "src/index.js"
+    "cli-jira": "src/index.js"
   },
   "scripts": {
     "commit": "cz",
