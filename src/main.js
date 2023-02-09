@@ -239,11 +239,11 @@ Usage:
   jira-cli config set url <address>
   jira-cli config set sprint <sprint>
   jira-cli config print
-  jira-cli issue set sprint <issue> <board>
-  jira-cli issue set estimation <issue> --original=<original_estimation> [--remaining=<remaining_estimation>]
-  jira-cli issue set assignee <issue> <developer>
-  jira-cli issue set ready <issue> <project> [<component>]
-  jira-cli issue add subtask <issue> <project> <subtask> [<component>]
+  jira-cli issue set sprint <board> <issue>
+  jira-cli issue set estimation --original=<original_estimation> [--remaining=<remaining_estimation>] <issue>
+  jira-cli issue set assignee <developer> <issue>
+  jira-cli issue set ready <project> [<component>] <issue>
+  jira-cli issue add subtask <project> <subtask> [<component>] <issue>
   jira-cli -h | --help
   jira-cli -v | --version
 
