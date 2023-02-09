@@ -1,3 +1,18 @@
+# [3.0.0](https://github.com/Paker30/jira-cli/compare/v2.5.0...v3.0.0) (2023-02-09)
+
+
+### Features
+
+* **name:** command name changes to cli-jira ([4a2759a](https://github.com/Paker30/jira-cli/commit/4a2759a4b3d99c85e5d7ecfa978d65bc46952e8b)), closes [#32](https://github.com/Paker30/jira-cli/issues/32)
+* **parameters:** ticket id is the last parameter ([578bd8a](https://github.com/Paker30/jira-cli/commit/578bd8acabf5449b5d9014ce6564dda0c23cb309))
+
+
+### BREAKING CHANGES
+
+* **parameters:** jira id is the last parameter
+
+32
+
 # [2.5.0](https://github.com/Paker30/jira-cli/compare/v2.4.0...v2.5.0) (2022-11-02)
 
 
