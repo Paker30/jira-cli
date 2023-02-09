@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/Paker30/jira-cli/compare/v3.0.0...v3.0.1) (2023-02-09)
+
+
+### Bug Fixes
+
+* **name:** update script name ([fe6239f](https://github.com/Paker30/jira-cli/commit/fe6239f85ce140b9f201cc6b839766ede107671f))
+
 # [3.0.0](https://github.com/Paker30/jira-cli/compare/v2.5.0...v3.0.0) (2023-02-09)
 
 
