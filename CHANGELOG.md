@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/Paker30/jira-cli/compare/v3.0.1...v3.0.2) (2023-02-20)
+
+
+### Bug Fixes
+
+* **cli:** the order does not make sense ([863cea4](https://github.com/Paker30/jira-cli/commit/863cea4c93e3ff8486228b7dfac93aef5cf7bd4f)), closes [#40](https://github.com/Paker30/jira-cli/issues/40)
+
 ## [3.0.1](https://github.com/Paker30/jira-cli/compare/v3.0.0...v3.0.1) (2023-02-09)
 
 
