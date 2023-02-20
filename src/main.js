@@ -242,8 +242,8 @@ Usage:
   cli-jira issue set sprint <board> <issue>
   cli-jira issue set estimation --original=<original_estimation> [--remaining=<remaining_estimation>] <issue>
   cli-jira issue set assignee <developer> <issue>
-  cli-jira issue set ready <project> [<component>] <issue>
-  cli-jira issue add subtask <project> <subtask> [<component>] <issue>
+  cli-jira issue set ready <project> <issue> [<component>]
+  cli-jira issue add subtask <project> <subtask> <issue> [<component>]
   cli-jira -h | --help
   cli-jira -v | --version
 
