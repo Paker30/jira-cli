@@ -1,8 +1,9 @@
 FROM node:18-alpine
+
 WORKDIR /app
 
 COPY ./ .
 
-RUN npm install
+RUN npm install && npm link
 
-ENTRYPOINT ["src/index.js"]
+ENTRYPOINT ["/usr/local/bin/cli-jira"]
