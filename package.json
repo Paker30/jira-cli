@@ -9,7 +9,6 @@
   },
   "scripts": {
     "commit": "cz",
-    "docker": "docker build . -t jira-cli:${npm_package_version} -t jira-cli:latest",
     "test": "c8 mocha",
     "test:ci": "mocha test/ --reporter nyan",
     "semantic-release": "semantic-release"
